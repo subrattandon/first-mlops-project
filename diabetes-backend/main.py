@@ -7,13 +7,16 @@ import numpy as np
 app = FastAPI()
 from fastapi.middleware.cors import CORSMiddleware
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Agar sirf apna frontend allow karna hai toh list me URL daal
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 model = joblib.load("diabetes_model.pkl")
 
