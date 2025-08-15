@@ -1,0 +1,11 @@
+# Lightweight Nginx image use kar
+FROM nginx:alpine
+
+# Apne static files ko nginx ke default public folder me copy kar
+COPY . /usr/share/nginx/html
+
+# Nginx ka default port expose kar
+EXPOSE 80
+
+# Nginx ko foreground me run kar
+CMD ["nginx", "-g", "daemon off;"]
