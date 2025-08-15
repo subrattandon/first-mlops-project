@@ -1,24 +1,22 @@
+# main.py
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import joblib
 import numpy as np
 
 app = FastAPI()
+from fastapi.middleware.cors import CORSMiddleware
 
-# ✅ CORS fix (frontend se API call allow karne ke liye)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Tu chahe to ["http://localhost:5500"] bhi rakh sakta hai
+    allow_origins=["*"],  # Agar sirf apna frontend allow karna hai toh list me URL daal
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Model load
 model = joblib.load("diabetes_model.pkl")
 
-# Input data format
 class DiabetesInput(BaseModel):
     Pregnancies: int
     Glucose: float
