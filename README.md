@@ -1,53 +1,81 @@
-🩺 Diabetes Prediction Model – Your First MLOps Project (FastAPI + Docker + K8s)
+# First MLOps Project
 
-This project demonstrates Building and Deploying an ML Model using a simple and real-world use case: predicting whether a person is diabetic based on health metrics. The workflow covers:
-✅ Model Training
-✅ Building the Model locally
-✅ API Deployment with FastAPI
-✅ Dockerization
-✅ Kubernetes Deployment
+A professional medical MLOps project designed to streamline machine learning workflows in healthcare applications. This project leverages containerization for reproducibility and scalability.
 
-📊 Problem Statement
-Predict if a person is diabetic based on:
-Pregnancies
-Glucose
-Blood Pressure
-BMI
-Age
+## Features
 
+- Automated model training and deployment
+- Scalable architecture using Docker
+- Continuous integration and delivery
+- Secure handling of medical data
 
-We use a Random Forest Classifier trained on the Pima Indians Diabetes Dataset.
-🚀 Quick Start
-1. Clone the Repo
-git clone <your-repo-url>
+## Getting Started
+
+### Prerequisites
+
+- Docker
+- Python 3.8+
+- Git
+
+### Clone the Repository
+
+```bash
+git clone https://github.com/yourusername/first-mlops-project.git
 cd first-mlops-project
+```
 
-2. Create Virtual Environment
-python3 -m venv .mlops
-source .mlops/bin/activate
+### Build and Run with Docker
 
-3. Install Dependencies
-pip install -r requirements.txt
+#### Dockerfile Example
 
-4. Train the Model
-python train.py
+```dockerfile
+# Use official Python image
+FROM python:3.8-slim
 
-5. Run the API Locally
-uvicorn main:app --reload
-Sample Input for /predict
-{
-  "Pregnancies": 2,
-  "Glucose": 130,
-  "BloodPressure": 70,
-  "BMI": 28.5,
-  "Age": 45
-}
+# Set working directory
+WORKDIR /app
 
-🐳 Dockerize the API
-Build the Docker Image
-docker build -t diabetes-prediction-model .
-Run the Container
-docker run -p 8000:8000 diabetes-prediction-model
+# Copy requirements
+COPY requirements.txt .
 
-☸ Deploy to Kubernetes
-kubectl apply -f diabetes-prediction-model-deployment.yaml
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy project files
+COPY . .
+
+# Expose port (if using a web service)
+EXPOSE 5000
+
+# Run the application
+CMD ["python", "app.py"]
+```
+
+Build and run the container:
+
+```bash
+docker build -t first-mlops-project .
+docker run -p 5000:5000 first-mlops-project
+```
+
+## Future Scope
+
+- Integration with cloud platforms (AWS, Azure, GCP)
+- Advanced model monitoring and logging
+- Automated data validation and drift detection
+- Support for federated learning for privacy-preserving healthcare AI
+
+## Future Implementation
+
+- Deploying models as RESTful APIs for real-time inference
+- Implementing CI/CD pipelines for seamless updates
+- Adding support for multiple ML frameworks (TensorFlow, PyTorch)
+- Enhanced security and compliance for medical data (HIPAA, GDPR)
+
+## License
+
+This project is licensed under the MIT License.
+
+---
+
+*For professional medical use, ensure compliance with all relevant regulations and standards.*
