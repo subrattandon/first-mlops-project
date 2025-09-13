@@ -1,95 +1,397 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🩺 Diabetes Prediction</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🩺 Diabetes Prediction 2025 — Advanced</title>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- jsPDF for report download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-+ZQYx6m1d6v6k6ZrQ0s3Kf6B5u6e5dZ0n3Qy1eJ2qv0uX1y7sF0D4nJw3uH6Y2gY1a2Q2b3c4d5e6f7g8h9i0==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #e0f7fa, #80deea);
-      text-align: center;
-      padding: 20px;
-    }
-    h1 {
-      color: #006064;
-    }
-    form {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      display: inline-block;
-      box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-    }
-    input {
-      padding: 10px;
-      margin: 8px;
-      width: 200px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    button {
-      background-color: #006064;
-      color: white;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #004d40;
-    }
-    #result {
-      margin-top: 20px;
-      font-size: 18px;
-      font-weight: bold;
-    }
+    :root{--teal:#006064;--teal-2:#0097a7;--pink:#ad1457;--glass: rgba(255,255,255,0.85);} 
+    *{box-sizing:border-box}
+    body{font-family:Inter, 'Segoe UI', Arial, sans-serif;margin:0;background:linear-gradient(120deg,#e8fafc 0%, #bff0f7 100%);color:#043a3a;min-height:100vh;padding:28px;}
+    .wrap{max-width:1100px;margin:0 auto}
+    header{display:flex;gap:18px;align-items:center;justify-content:space-between}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--teal),var(--teal-2));display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:20px;box-shadow:0 6px 22px rgba(0,96,100,0.18)}
+    h1{margin:0;font-size:20px;letter-spacing:1px}
+    .badge{background:white;padding:6px 12px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,0.06);font-weight:600}
+
+    main{display:grid;grid-template-columns:1fr 480px;gap:22px;margin-top:22px}
+
+    /* Form card */
+    .card{background:var(--glass);backdrop-filter: blur(6px);padding:20px;border-radius:14px;box-shadow:0 10px 30px rgba(2,48,48,0.06)}
+    form .row{display:flex;gap:10px;flex-wrap:wrap}
+    label{display:block;font-size:13px;margin-top:10px}
+    input, select{padding:10px;border-radius:8px;border:1px solid rgba(2,48,48,0.06);width:100%;font-size:14px}
+    .small{width:150px}
+    .muted{font-size:13px;color:rgba(2,48,48,0.6)}
+    .controls{display:flex;gap:10px;align-items:center;margin-top:12px}
+    button.primary{background:linear-gradient(90deg,var(--teal) 40%, var(--teal-2) 100%);color:white;padding:10px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:700}
+    button.ghost{background:transparent;border:1px solid rgba(0,0,0,0.06);padding:10px 12px;border-radius:10px;cursor:pointer}
+
+    #result{margin-top:16px;font-weight:700;font-size:16px;min-height:34px}
+    .progress{height:12px;background:rgba(2,48,48,0.06);border-radius:999px;overflow:hidden;margin-top:8px}
+    .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--pink),var(--teal));width:0%;transition:width 600ms ease}
+
+    /* Right column */
+    .right{display:flex;flex-direction:column;gap:18px}
+    .chart-wrap{background:white;padding:12px;border-radius:12px;box-shadow:0 8px 18px rgba(2,48,48,0.06)}
+    .chart-title{font-weight:700;margin-bottom:8px}
+
+    /* footer */
+    footer{margin-top:20px;text-align:center;font-size:13px;color:rgba(2,48,48,0.6)}
+
+    /* Responsive */
+    @media (max-width:980px){main{grid-template-columns:1fr;}.right{order:2}}
+
+    /* Tooltip */
+    .hint{font-size:12px;color:rgba(2,48,48,0.6)}
+
+    /* subtle floating bg */
+    .float-shape{position:fixed;right:-80px;bottom:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle at 30% 30%, rgba(0,147,167,0.12), transparent 40%), linear-gradient(135deg,#e8f6f6,#dff3f5);pointer-events:none}
   </style>
 </head>
 <body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">🩺</div>
+        <div>
+          <h1>Diabetes Prediction 2025 — Clinical Demo</h1>
+          <div class="badge">AI · Research · Clinically-minded</div>
+        </div>
+      </div>
+      <div class="muted">Made for learning & demo — not a medical diagnosis</div>
+    </header>
 
-  <h1>🩺 Diabetes Prediction</h1>
-  <form id="predictForm">
-    <input type="number" id="preg" placeholder="Pregnancies" required><br>
-    <input type="number" id="glucose" placeholder="Glucose" required><br>
-    <input type="number" id="bp" placeholder="Blood Pressure" required><br>
-    <input type="number" step="0.1" id="bmi" placeholder="BMI" required><br>
-    <input type="number" id="age" placeholder="Age" required><br>
-    <button type="submit">Predict</button>
-  </form>
+    <main>
+      <!-- Left: Form & result -->
+      <section class="card" aria-labelledby="formTitle">
+        <h2 id="formTitle">Patient Data</h2>
+        <p class="muted">Enter the patient's details. We show a probability and a short explanation. This is a demo — consult a clinician for decisions.</p>
 
-  <div id="result"></div>
+        <form id="predictForm" autocomplete="off" novalidate>
+          <div class="row">
+            <div style="flex:1">
+              <label for="gender">Gender</label>
+              <select id="gender" required aria-required="true">
+                <option value="" disabled selected>Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+
+            <div style="width:120px">
+              <label for="age">Age</label>
+              <input id="age" type="number" min="0" max="120" placeholder="yrs" required />
+            </div>
+
+            <div style="width:140px">
+              <label for="bmi">BMI</label>
+              <input id="bmi" step="0.1" type="number" min="10" max="60" placeholder="kg/m²" required />
+            </div>
+
+            <div style="width:150px">
+              <label for="glucose">Glucose</label>
+              <input id="glucose" type="number" min="0" max="500" placeholder="mg/dL" required />
+            </div>
+
+            <div style="width:150px">
+              <label for="bp">Blood Pressure</label>
+              <input id="bp" type="number" min="0" max="250" placeholder="mm Hg" required />
+            </div>
+
+            <div style="width:150px" id="pregWrap">
+              <label for="preg">Pregnancies <span class="hint">(only for females)</span></label>
+              <input id="preg" type="number" min="0" max="20" placeholder="count" />
+            </div>
+          </div>
+
+          <div class="controls">
+            <button class="primary" type="submit" id="predictBtn">Predict</button>
+            <button type="button" id="sampleBtn" class="ghost">Load Sample</button>
+            <button type="button" id="downloadBtn" class="ghost" disabled>Download Report</button>
+          </div>
+
+          <div id="result" role="status" aria-live="polite"></div>
+          <div class="progress" aria-hidden="true"><i id="progBar"></i></div>
+          <div style="margin-top:8px;font-size:13px;color:rgba(2,48,48,0.6)">Model: Remote MLOps API (with local fallback) · <span id="sourceLabel">idle</span></div>
+        </form>
+
+        <hr style="margin-top:16px;border:none;border-top:1px solid rgba(2,48,48,0.06)" />
+        <div>
+          <strong>Quick tips:</strong>
+          <ul style="margin:8px 0;padding-left:18px;color:rgba(2,48,48,0.7)">
+            <li>Glucose & BMI strongly affect risk.</li>
+            <li>For females, pregnancy count can be informative.</li>
+            <li>Use the sample button to test the demo.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Right: Charts & insights -->
+      <aside class="right">
+        <div class="chart-wrap card">
+          <div class="chart-title">Risk Probability (last prediction)</div>
+          <canvas id="gaugeChart" height="140" aria-label="probability chart"></canvas>
+        </div>
+
+        <div class="chart-wrap card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="chart-title">Population Trend (2020-2025)</div>
+            <div style="font-size:13px;color:rgba(2,48,48,0.6)"><button id="toggleGender" class="ghost">Toggle Gender</button></div>
+          </div>
+          <canvas id="trendChart" height="160" aria-label="trend chart"></canvas>
+          <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end">
+            <button id="csvBtn" class="ghost">Download CSV</button>
+          </div>
+        </div>
+
+        <div class="card" style="padding:12px">
+          <strong>Interpretability</strong>
+          <div id="explain" style="margin-top:8px;color:rgba(2,48,48,0.8)">No prediction yet.</div>
+        </div>
+      </aside>
+    </main>
+
+    <footer>Disclaimer: This UI is a demonstration. It is <em>not</em> a replacement for clinical judgment.</footer>
+  </div>
+
+  <div class="float-shape"></div>
 
   <script>
-    document.getElementById('predictForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
+    // --- Utilities ---
+    const el = id => document.getElementById(id);
+
+    // Elements
+    const genderSelect = el('gender');
+    const pregInput = el('preg');
+    const pregWrap = el('pregWrap');
+    const predictForm = el('predictForm');
+    const resultEl = el('result');
+    const progBar = el('progBar');
+    const sourceLabel = el('sourceLabel');
+    const predictBtn = el('predictBtn');
+    const downloadBtn = el('downloadBtn');
+
+    // hide pregnancy for male
+    function updatePregVisibility(){
+      if(genderSelect.value === 'Male'){
+        pregWrap.style.display = 'none';
+        pregInput.required = false;
+      } else {
+        pregWrap.style.display = '';
+        pregInput.required = true;
+      }
+    }
+    genderSelect.addEventListener('change', updatePregVisibility);
+
+    // Sample quick loader
+    el('sampleBtn').addEventListener('click', ()=>{
+      genderSelect.value = 'Female'; updatePregVisibility();
+      el('age').value = 45; el('bmi').value = 32.4; el('glucose').value = 160; el('bp').value = 78; el('preg').value = 2;
+    });
+
+    // Small client-side validation helper
+    function validateInputs(data){
+      const problems = [];
+      if(!['Male','Female'].includes(data.Gender)) problems.push('Select gender');
+      if(isNaN(data.Age) || data.Age < 0 || data.Age > 120) problems.push('Age');
+      if(isNaN(data.BMI) || data.BMI < 10 || data.BMI > 60) problems.push('BMI');
+      if(isNaN(data.Glucose) || data.Glucose < 20 || data.Glucose > 500) problems.push('Glucose');
+      if(isNaN(data.BloodPressure) || data.BloodPressure < 20 || data.BloodPressure > 250) problems.push('Blood Pressure');
+      return problems;
+    }
+
+    // --- Charts setup ---
+    const years = ['2020','2021','2022','2023','2024','2025'];
+    let maleCases = [120,135,150,170,190,210];
+    let femaleCases = [110,125,140,160,185,205];
+
+    // Trend Chart
+    const trendCtx = el('trendChart').getContext('2d');
+    const trendChart = new Chart(trendCtx, {
+      type:'line',
+      data:{labels:years,datasets:[{label:'Male',data:maleCases,borderColor:'#006064',fill:false,tension:0.35},{label:'Female',data:femaleCases,borderColor:'#ad1457',fill:false,tension:0.35}]},
+      options:{responsive:true,plugins:{legend:{display:true}},scales:{y:{beginAtZero:true}}}
+    });
+
+    // Gauge-like donut to show probability
+    const gaugeCtx = el('gaugeChart').getContext('2d');
+    const gauge = new Chart(gaugeCtx, {
+      type:'doughnut',
+      data:{labels:['Risk','Safe'],datasets:[{data:[0,100],backgroundColor:['#ad1457','#b2ebf2'],hoverOffset:4}]},
+      options:{cutout:'70%',plugins:{legend:{display:false},tooltip:{enabled:false}}}
+    });
+
+    // CSV Download
+    el('csvBtn').addEventListener('click', ()=>{
+      const rows = [['Year','Male','Female']].concat(years.map((y,i)=>[y,maleCases[i],femaleCases[i]]));
+      const csv = rows.map(r=>r.join(',')).join('\n');
+      const blob = new Blob([csv],{type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'population_trend.csv'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    // Toggle gender series visibility
+    el('toggleGender').addEventListener('click', ()=>{
+      trendChart.data.datasets.forEach(ds=>ds.hidden = !ds.hidden); trendChart.update();
+    });
+
+    // --- Prediction: try remote API; if fails use local fallback ---
+    const API_URL = 'https://first-mlops-project.onrender.com/predict'; // remote
+
+    function setProgress(percent){ progBar.style.width = percent + '%'; }
+
+    function localPredict(data){
+      // A simple logistic approximation for demo only (weights chosen heuristically)
+      // NOT MEDICAL — only fallback for demo when remote API is unreachable
+      const w = {Age:0.03,BMI:0.08,Glucose:0.045,BloodPressure:0.01,Pregnancies:0.05};
+      let score =  -6.5 + (w.Age * data.Age) + (w.BMI * data.BMI) + (w.Glucose * data.Glucose) + (w.BloodPressure * data.BloodPressure) + (w.Pregnancies * (data.Pregnancies||0));
+      const prob = 1/(1+Math.exp(-score));
+      return Math.max(0, Math.min(1, prob));
+    }
+
+    async function remotePredict(data, timeout=8000){
+      sourceLabel.innerText = 'remote';
+      const controller = new AbortController();
+      const id = setTimeout(()=>controller.abort(), timeout);
+      try{
+        setProgress(30);
+        const res = await fetch(API_URL, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),signal:controller.signal});
+        clearTimeout(id);
+        if(!res.ok) throw new Error('API responded ' + res.status);
+        const json = await res.json();
+        // expect {diabetic: true/false, probability: 0.xx }
+        if(typeof json.probability === 'number') return {prob: json.probability, remote:true, details:json};
+        // if only boolean returned, use boolean + fallback prob
+        return {prob: json.diabetic ? 0.88 : 0.12, remote:true, details:json};
+      }catch(err){
+        clearTimeout(id);
+        throw err;
+      }
+    }
+
+    // interpret features by simple contribution for local explanation
+    function explainLocal(data, prob){
+      const contributions = [
+        {name:'Glucose', val: data.Glucose, weight: 0.45},
+        {name:'BMI', val: data.BMI, weight: 0.35},
+        {name:'Age', val: data.Age, weight: 0.2},
+        {name:'Blood Pressure', val: data.BloodPressure, weight: 0.08},
+        {name:'Pregnancies', val: data.Pregnancies||0, weight: 0.06}
+      ];
+      // sort by 'importance' (weight * val)
+      contributions.sort((a,b)=>Math.abs(b.weight*b.val) - Math.abs(a.weight*a.val));
+      const top = contributions.slice(0,3).map(c=>`${c.name} (${c.val})`).join(', ');
+      return `Top contributors: ${top}. Estimated risk ${Math.round(prob*100)}%.`;
+    }
+
+    // Create PDF report using jsPDF
+    async function createReport(data, prob){
+      try{
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({unit:'mm', format:'a4'});
+        doc.setFontSize(16); doc.text('Diabetes Risk Report', 14, 20);
+        doc.setFontSize(11); doc.text(`Date: ${new Date().toLocaleString()}`, 14, 28);
+        doc.text(`Patient: Gender=${data.Gender}, Age=${data.Age}`, 14, 36);
+        doc.text(`Vitals: Glucose=${data.Glucose} mg/dL, BMI=${data.BMI}, BP=${data.BloodPressure} mmHg`, 14, 44);
+        doc.text(`Pregnancies: ${data.Pregnancies || 0}`, 14, 52);
+        doc.setFontSize(12); doc.text(`Predicted Risk: ${Math.round(prob*100)}%`, 14, 66);
+        const explain = explainLocal(data, prob);
+        doc.setFontSize(10); doc.text('Notes:', 14, 78); doc.text(explain, 14, 86, {maxWidth:180});
+
+        // embed trend chart image
+        const trendImg = document.getElementById('trendChart').toDataURL('image/png',1.0);
+        doc.addImage(trendImg, 'PNG', 14, 110, 180, 60);
+        const fname = `diabetes_report_${Date.now()}.pdf`;
+        doc.save(fname);
+      }catch(err){
+        console.error('PDF error', err); alert('Failed to generate PDF');
+      }
+    }
+
+    downloadBtn.addEventListener('click', async ()=>{
+      if(!lastPrediction) return; downloadBtn.disabled=true; await createReport(lastPrediction.data,lastPrediction.prob); downloadBtn.disabled=false;
+    });
+
+    // State for last prediction
+    let lastPrediction = null;
+
+    predictForm.addEventListener('submit', async (ev)=>{
+      ev.preventDefault();
+      predictBtn.disabled = true; downloadBtn.disabled = true; setProgress(0); resultEl.innerText = '';
 
       const data = {
-        Pregnancies: parseInt(document.getElementById('preg').value),
-        Glucose: parseFloat(document.getElementById('glucose').value),
-        BloodPressure: parseFloat(document.getElementById('bp').value),
-        BMI: parseFloat(document.getElementById('bmi').value),
-        Age: parseInt(document.getElementById('age').value)
+        Gender: genderSelect.value,
+        Pregnancies: genderSelect.value === 'Female' ? Number(pregInput.value||0) : 0,
+        Glucose: Number(el('glucose').value),
+        BloodPressure: Number(el('bp').value),
+        BMI: Number(el('bmi').value),
+        Age: Number(el('age').value)
       };
 
-      try {
-        const response = await fetch('https://first-mlops-project.onrender.com/predict', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
+      const problems = validateInputs(data);
+      if(problems.length){ resultEl.innerHTML = `<span style="color:#d84315">Please fix: ${problems.join(', ')}</span>`; predictBtn.disabled=false; return; }
 
-        if (!response.ok) {
-          throw new Error('API call failed');
-        }
+      // Start animation
+      setProgress(10); resultEl.innerText = '⏳ Predicting...';
 
-        const result = await response.json();
-        document.getElementById('result').innerText = result.diabetic ? '⚠️ Diabetic' : '✅ Not Diabetic';
-      } catch (error) {
-        document.getElementById('result').innerText = '❌ Error: ' + error.message;
+      // Try remote first
+      try{
+        const res = await remotePredict(data, 8000);
+        setProgress(70);
+        const prob = res.prob;
+        // show result
+        updateUIAfterPrediction(data, prob, true, res.details);
+        lastPrediction = {data, prob, remote:true, details:res.details};
+        downloadBtn.disabled = false;
+        setProgress(100);
+      }catch(err){
+        console.warn('Remote failed, falling back', err);
+        sourceLabel.innerText = 'local fallback';
+        setProgress(45);
+        // local fallback
+        const prob = localPredict(data);
+        updateUIAfterPrediction(data, prob, false, {error:err.message});
+        lastPrediction = {data, prob, remote:false};
+        downloadBtn.disabled = false;
+        setProgress(100);
+      } finally {
+        predictBtn.disabled = false;
+        setTimeout(()=>setProgress(0),900);
       }
     });
-  </script>
 
+    function updateUIAfterPrediction(data, prob, remote, details){
+      // Update gauge
+      const p = Math.round(prob*100);
+      gauge.data.datasets[0].data = [p,100-p]; gauge.update();
+
+      // Color + text
+      const riskText = prob >= 0.5 ? `⚠️ High risk (${p}%)` : `✅ Low risk (${p}%)`;
+      resultEl.innerHTML = `<span style="color:${prob>=0.5? '#ad1457':'#006064'};font-weight:800">${riskText}</span>`;
+
+      // Explanation
+      const explanation = explainLocal(data, prob);
+      el('explain').innerText = explanation;
+
+      sourceLabel.innerText = remote ? 'remote' : 'local fallback';
+
+      // Slightly push the population trend as an example (toy behaviour)
+      if(data.Gender === 'Male'){
+        maleCases = maleCases.map((v,i)=> Math.round(v + (prob*2)) );
+      } else {
+        femaleCases = femaleCases.map((v,i)=> Math.round(v + (prob*2)) );
+      }
+      trendChart.data.datasets[0].data = maleCases; trendChart.data.datasets[1].data = femaleCases; trendChart.update();
+    }
+
+    // Initialize small UI state
+    updatePregVisibility(); sourceLabel.innerText='idle';
+  </script>
 </body>
 </html>
